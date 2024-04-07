@@ -13,10 +13,10 @@
 
 - Créer une application multithread
 
-## Ce n'est pas une chausette
+## CE N’EST PAS UNE CHAUSSETTE
 Création des différentes classes:
 
-#### WebServer.java :
+### WebServer.java :
 ```JAVA
 public class WebServer {
     private void readRequest(Socket socket) {
@@ -62,7 +62,7 @@ public class WebServer {
     }
 }
 ```
-#### WebServerApplication.java :
+### WebServerApplication.java :
 ```JAVA
 public class WebServerApplication {
     public static void main(String[] args) {
@@ -106,3 +106,151 @@ La requete client contient :
   - image/webp
   - \*/*;q=0.8
 - le champ connection en keep-alive traduit le fait que le client souhaite garder la connexion ouverte pour d'autres requetes
+
+
+## REORGANISATION
+
+### httpRequest.java :
+```JAVA
+public class HttpRequest {
+    private String method;
+    private String url;
+    private void readClientRequest(Socket socket){
+        try {
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String line = "";
+            String response = "";
+            do {
+                line = input.readLine();
+                response += line;
+            }while (!line.isEmpty());
+            String[] request = response.split(" ");
+            this.method = request[0];
+            this.url = request[1];
+        }
+        catch(Exception e){
+            System.err.println(e.getMessage());
+        }
+    }
+    public HttpRequest(Socket socket){
+        readClientRequest(socket);
+    }
+    public String getMethod(){
+        return method;
+    }
+    public String getUrl(){
+        return url;
+    }
+}
+```
+### httpResponse.java :
+```JAVA
+public class HttpResponse {
+    private BufferedWriter output;
+    
+    public HttpResponse(Socket socket) {
+        try {
+            output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+    public void ok(String message){
+        try {
+            output.write("HTTP/1.0 200 " + message + " \n\n ");
+            output.flush();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+    public void notFound(String message){
+        try {
+            output.write("HTTP/1.0 404 " + message + " \n\n ");
+
+            output.flush();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+}
+```
+### httpContext.java :
+```JAVA
+public class HttpContext {
+    private Socket socket;
+    private HttpRequest request;
+    private HttpResponse response;
+    
+    public HttpContext(Socket socket) {
+        this.socket = socket;
+        request = new HttpRequest(socket);
+        response = new HttpResponse(socket);
+    }
+
+    public HttpRequest getRequest() {
+        return request;
+    }
+
+    public HttpResponse getResponse() {
+        return response;
+    }
+
+    public void close() {
+        try {
+            socket.close();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+}
+```
+### requestProcessor.java :
+```JAVA
+public class RequestProcessor {
+    private HttpContext context;
+    private void process(){
+        if(context.getRequest().getUrl().equals("/")){
+            context.getResponse().ok("OK");
+        }
+        else{
+            context.getResponse().notFound("Not Found");
+        }
+        context.close();
+    }
+    public RequestProcessor(Socket socket) {
+        context = new HttpContext(socket);
+        process();
+    }
+}
+```
+### webServer.java :
+```JAVA
+public class WebServer {
+    public void run(int portNumber) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            while (true) {
+                Socket socket = serverSocket.accept();
+                RequestProcessor requestProcessor = new RequestProcessor(socket);
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+}
+```
+### RESULTATS
+
+![img_3.png](img_3.png)
+
+![img_2.png](img_2.png)
+
+
+
+## UN PEU DE CONTENNU
+
+### A LA MANO
+### AVEC DES FICHIER
+
+## LA FIN DU "CHACUN SON TOUR"
+
