@@ -18,8 +18,8 @@ public class HttpRequest {
                 //System.out.println(response);
             }while (!line.isEmpty());
             String[] request = response.split(" ");
-            System.out.println(request[0]);
-            System.out.println(request[1]);
+            //System.out.println(request[0]);
+            //System.out.println(request[1]);
             this.method = request[0];
             this.url = request[1];
 

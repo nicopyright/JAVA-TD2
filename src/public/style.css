@@ -1,0 +1,86 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    background-color: #b3b3b3;
+    .header{
+        background-color: #e1e1e1;
+
+        box-shadow: 0 0 10px #000;
+        display: flex;
+        justify-content: space-between;
+        height: 100px;
+        align-items: center;
+
+
+    }
+    .header img{
+        width: 200px;
+        margin: 10px;
+
+    }
+    .header a{
+        padding: 20px;
+        color: #4691ff;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+    .page{
+        width: 1300px;
+        margin:auto;
+        background-color: #ffffff;
+    }
+    h1 {
+        padding-left: 20px;
+        padding-top: 20px;
+        border-bottom: 1px;
+        color: #4691ff;
+    }
+
+    .presentation p {
+        text-align: justify;
+        padding-left: 30px;
+    }
+    strong {
+        color: #4691ff;
+    }
+    .presentation video{
+        width: 700px;
+        display: block;
+        margin: auto;
+    }
+    .Actus{
+        display: flex;
+        justify-content: space-around;
+    }
+    .Actus div{
+        width: 200px;
+        display: flex;
+        flex-direction: column;
+    }
+    .Actus h2{
+        color: #555;
+        text-align: center;
+    }
+    .Actus img{
+        max-width: 200px;
+        border-radius: 10px;
+    }
+    .Actus p{
+        font-size: 0.7em;
+    }
+    .Tail{
+        background-color: #333333;
+        box-shadow: 0 0 10px #000;
+        display: flex;
+        justify-content: space-around;
+    }
+    .Tail p{
+        text-align: center;
+        color: #eeeeee;
+
+    }
+;
+
+
+}
