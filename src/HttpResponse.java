@@ -37,6 +37,5 @@ public class HttpResponse {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-
     }
 }

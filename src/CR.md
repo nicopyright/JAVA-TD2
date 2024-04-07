@@ -250,6 +250,52 @@ public class WebServer {
 ## UN PEU DE CONTENNU
 
 ### A LA MANO
+
+```JAVA
+public class RequestProcessor {
+    private HttpContext context;
+    private void process(){
+        if(context.getRequest().getUrl().equals("/")){
+            context.getResponse().ok("OK");
+            context.getResponse().sendContent("text/plain", "Hello World !");
+        }
+        else{
+            context.getResponse().notFound("Not Found");
+        }
+        context.close();
+
+
+    }
+    public RequestProcessor(Socket socket) {
+        context = new HttpContext(socket);
+        process();
+    }
+}
+```
+```JAVA
+ public void sendContent(String contentType, String content){
+        try {
+            output.write("Content-Type: " + contentType + "\n");
+            output.write("Content-Length: " + content.length() + "\n");
+            output.write("\n" + content);
+            output.flush();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+```
+![img_5.png](img_5.png)
+
+```JAVA
+context.getResponse().sendContent("text/html", "Hello World !");
+```
+Aucune diffrence.
+
+```JAVA
+context.getResponse().sendContent("text/html", "<body><strong> Hello World !</strong></body>");
+```
+![img_6.png](img_6.png)
+
 ### AVEC DES FICHIER
 
 ## LA FIN DU "CHACUN SON TOUR"
