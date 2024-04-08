@@ -1,5 +1,7 @@
 ###### Nicolas METAIS
 
+Ce compte rendu est réalisé le ReadMe de mon <a href=https://github.com/nicopyright/JAVA-TD2> repository github </a>.
+
 # Compte Rendu de TP Java
 
 
@@ -484,8 +486,8 @@ Il est aussi possible d'ouvrir plusieurs pages du site en même temps.
 
 Ce TP nous a permis de mieux comprendre le fonctionnement d'un serveur web et de manipuler en profondeur les sockets en Java.
 
-Certaine difficultés ont été rencontrées lors de la manipulation des fichiers et de l'envoi de contenu. Par exemple avec un espace en trop dans l'entête avant le content-type de la réponse, les navigateurs (sauf firefox sur lequel tout fonctionnait) reconnaissait tout les types MIME correctement exepté le type "image/svg + xml", le logo de polytech dijon ne s'affichait donc pas. Apres correction tout était rentré dans l'ordre.
+Certaine difficultés ont été rencontrées lors de la manipulation des fichiers et de l'envoi de contenu. Par exemple avec un espace en trop dans l'entête avant le content-type de la réponse, les navigateurs (sauf firefox sur lequel tout fonctionnait) reconnaissait tout les types MIME correctement excepté le type "image/svg + xml", le logo de polytech dijon ne s'affichait donc pas. Après correction tout était rentré dans l'ordre.
 
-Les petites différences de fonctionnement entre le code fournis dans le CM et la réalité ont aussi pu ralentir la progression. Bien que cela est été formateur. ;)
+Les petites différences de fonctionnement entre le code fournis dans le CM et la réalité ont aussi pu ralentir la progression. Bien que cela ai été formateur. ;)
 
 J'ai trouvé ce TP très intéressant et enrichissant. Il m'a permis de mieux comprendre le fonctionnement d'un serveur web et de manipuler les sockets en Java. J'ai aussi pu découvrir le multithreading en Java et son utilité dans le traitement de plusieurs requêtes en même temps.
