@@ -10,6 +10,8 @@ public class WebServer {
             while (true) {
                 Socket socket = serverSocket.accept();
                 RequestProcessor requestProcessor = new RequestProcessor(socket);
+                Thread thread = new Thread(requestProcessor);
+                thread.start();
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());

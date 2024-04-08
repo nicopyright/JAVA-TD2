@@ -13,7 +13,7 @@ public class HttpResponse {
     }
     public void ok(String message){
         try {
-            output.write(("HTTP/1.0 200 " + message + " \n ").getBytes());
+            output.write(("HTTP/1.1 200 " + message + " \n").getBytes());
             output.flush();
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -21,7 +21,7 @@ public class HttpResponse {
     }
     public void notFound(String message){
         try {
-            output.write(("HTTP/1.0 404 " + message + " \n ").getBytes());
+            output.write(("HTTP/1.1 404 " + message + " \n").getBytes());
 
             output.flush();
         } catch (Exception e) {

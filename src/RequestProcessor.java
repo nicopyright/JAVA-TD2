@@ -1,20 +1,25 @@
 import java.io.File;
 import java.net.Socket;
 
-public class RequestProcessor {
+class RequestProcessor implements Runnable{
     private HttpContext context;
-
+    @Override
+    public void run(){
+        process();
+    }
     private void process(){
+        System.out.println(context.getRequest().getMethod());
+        System.out.println(context.getRequest().getUrl());
         File f = new File((context.getRequest().getUrl().substring(1)));
-        if(f.getPath().equals("")){
-            context.getResponse().ok("OK");
-            //context.getResponse().sendContent("text/html", "<body><strong> Hello World !</strong></body>");
-            context.getResponse().sendFile("text/html", "src/public/index.html");
-        }
+            if(f.getPath().equals("")){
+                context.getResponse().ok("OK");
+                //context.getResponse().sendContent("text/html", "<body><strong> Hello World !</strong></body>");
+                context.getResponse().sendFile("text/html", "src/public/index.html");
+            }
         else if(f.isFile()){
             String[] path = f.getPath().split("\\.");
             String ext = path[path.length-1];
-            System.out.println(ext);
+            //System.out.println(ext);
 
             context.getResponse().ok("OK");
             switch (ext){
@@ -57,6 +62,5 @@ public class RequestProcessor {
     }
     public RequestProcessor(Socket socket) {
         context = new HttpContext(socket);
-        process();
     }
 }

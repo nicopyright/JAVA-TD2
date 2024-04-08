@@ -37,7 +37,7 @@ public class WebServer {
     private void sendResponse(Socket socket) {
         try {
             BufferedWriter output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            output.write("HTTP/1.0 200 OK \n\n ");
+            output.write("HTTP/1.1 200 OK \n\n ");
 
             output.flush();
         } catch (Exception e) {
@@ -109,7 +109,7 @@ La requete client contient :
 
 
 ## REORGANISATION
-
+On implémente les différentes classes.
 ### httpRequest.java :
 ```JAVA
 public class HttpRequest {
@@ -157,7 +157,7 @@ public class HttpResponse {
     }
     public void ok(String message){
         try {
-            output.write("HTTP/1.0 200 " + message + " \n\n ");
+            output.write("HTTP/1.1 200 " + message + " \n\n");
             output.flush();
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -165,7 +165,7 @@ public class HttpResponse {
     }
     public void notFound(String message){
         try {
-            output.write("HTTP/1.0 404 " + message + " \n\n ");
+            output.write("HTTP/1.1 404 " + message + " \n\n");
 
             output.flush();
         } catch (Exception e) {
@@ -241,16 +241,24 @@ public class WebServer {
 ```
 ### RESULTATS
 
+On obtient alors des résultats différents selon si l'url est / ou non.
+
 ![img_3.png](img_3.png)
+
+- Si l'url est / on obtient un code 200 OK
 
 ![img_2.png](img_2.png)
 
+- Si l'url est /toto (par exemple) on obtient un code 404 Not Found
 
 
 ## UN PEU DE CONTENNU
 
+On va maintenant ajouter du contenu à notre serveur web.
+
 ### A LA MANO
 
+On va envoyer une reponse HTTP avec seulement du text comme contenu pour l'instant.
 ```JAVA
 public class RequestProcessor {
     private HttpContext context;
@@ -263,8 +271,8 @@ public class RequestProcessor {
             context.getResponse().notFound("Not Found");
         }
         context.close();
-
-
+    
+    
     }
     public RequestProcessor(Socket socket) {
         context = new HttpContext(socket);
@@ -286,17 +294,198 @@ public class RequestProcessor {
 ```
 ![img_5.png](img_5.png)
 
+En changeant le contentType en text/html pour obtenir une page web :
+
 ```JAVA
 context.getResponse().sendContent("text/html", "Hello World !");
 ```
-Aucune diffrence.
+Aucune diffrence...
+
+Avec les balises HTML c'est mieux !
 
 ```JAVA
 context.getResponse().sendContent("text/html", "<body><strong> Hello World !</strong></body>");
 ```
+On obtient alors un texte en gras :
+
 ![img_6.png](img_6.png)
 
 ### AVEC DES FICHIER
+On va maintenant envoyer des fichiers au lieu d'envoyer le text à la main.
+
+Création de sendFile dans HttpResponse.java
+```JAVA
+public void sendFile(String contentType, String filename){
+
+    try {
+        File file = new File(filename);
+        FileInputStream input = new FileInputStream(filename);
+        byte[] bytes = new byte[4096];
+        int bytesRead = 0;
+        output.write(("Content-Type: " + contentType + "\n").getBytes());
+        output.write(("Content-Length: " + file.length() + "\n").getBytes());
+        output.write(("\n").getBytes());
+        do {
+            bytesRead = input.read(bytes);
+            if (bytesRead > 0) {
+                output.write(bytes, 0, bytesRead);
+            }
+        } while (bytesRead == 4096);
+        output.flush();
+    } catch (Exception e) {
+        System.err.println(e.getMessage());
+    }
+}
+```
+Dans RequestProcessor.java on remplace l'enovoi de text par l'envoi de fichier si l'url est " / " :
+```JAVA
+if(f.getPath().equals("/")){
+    context.getResponse().ok("OK");
+    //context.getResponse().sendContent("text/html", "<body><strong> Hello World !</strong></body>");
+    context.getResponse().sendFile("text/html", "src/public/index.html");
+}
+```
+En créant un dossier public dans src et en y mettant un fichier index.html (du TD1 de dev web) on obtient :
+
+![img_7.png](img_7.png)
+
+Ajoutons un peu de style avec un fichier css et des images.
+Pour cela on ajoute un switch dans RequestProcessor.java pour envoyer le bon type de fichier en fonction de l'extension:
+```JAVA
+class RequestProcessor {
+    private HttpContext context;
+    
+    public void process(){
+        File f = new File((context.getRequest().getUrl().substring(1))); // On enleve le premier caractere qui est le "/"
+            if(f.getPath().equals("")){
+                context.getResponse().ok("OK");
+                context.getResponse().sendFile("text/html", "src/public/index.html");
+            }
+        else if(f.isFile()){
+            String[] path = f.getPath().split("\\.");
+            String ext = path[path.length-1]; // On recupere l'extension du fichier
+
+            context.getResponse().ok("OK");
+            switch (ext){
+                case "html":
+                    context.getResponse().sendFile("text/html", f.getPath());
+                    break;
+                case "css":
+                    context.getResponse().sendFile("text/css", f.getPath());
+                    break;
+                case "png":
+                    context.getResponse().sendFile("image/png", f.getPath());
+                    break;
+                case "jpg":
+                    context.getResponse().sendFile("image/jpg", f.getPath());
+                    break;
+                case "jpeg":
+                    context.getResponse().sendFile("image/jpeg", f.getPath());
+                    break;
+                case "svg":
+                    context.getResponse().sendFile("image/svg+xml", f.getPath());
+                    break;
+                case "webp":
+                    context.getResponse().sendFile("image/webp", f.getPath());
+                    break;
+                case "mp4":
+                    context.getResponse().sendFile("video/mp4", f.getPath());
+                    break;
+                default:
+                    context.getResponse().sendContent("text/plain", "File type not supported");
+                    break;
+            }
+        }
+
+        else{
+            context.getResponse().notFound("Not Found");
+        }
+        context.close();
+
+
+    }
+    public RequestProcessor(Socket socket) {
+        context = new HttpContext(socket);
+    }
+}
+```
+
+TADA ! La page web est bien stylée et contient des images et des vidéos.
+
+![img_8.png](img_8.png)
 
 ## LA FIN DU "CHACUN SON TOUR"
 
+En affichanr les requetes sur le terminal on peut voir que les requetes sont traitées les unes après les autres.
+```
+GET
+/
+GET
+/src/public/style.css
+GET
+/src/public/img/logo-polytech-dijon.png
+GET
+/src/public/img/logo-polytech.svg
+GET
+/src/public/img/sweat.webp
+GET
+/src/public/img/sandwich.jpg
+```
+
+Le serveur ne peut traiter qu'une requete à la fois.Donc une seule personne peut accéder au site à la fois.
+<br> On va donc implémenter du multithreading pour pouvoir traiter plusieurs requetes en même temps.
+
+Modification de la classe RequestProcessor pour qu'elle implémente Runnable et que la méthode process soit appelée dans la méthode redéfinie run:
+```JAVA
+class RequestProcessor implements Runnable {
+    private HttpContext context;
+
+    @Override
+    public void run() {
+        process();
+    }
+
+    private void process() {
+    .
+      
+    .
+      
+    .
+      
+    }
+}
+```
+Modification de la classe WebServer pour qu'elle crée un thread pour chaque requete:
+```JAVA
+public class WebServer {
+
+    public void run(int portNumber) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            while (true) {
+                Socket socket = serverSocket.accept();
+                RequestProcessor requestProcessor = new RequestProcessor(socket);
+                Thread thread = new Thread(requestProcessor);
+                thread.start();
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+}
+```
+Sur l'onglet réseau de l'inspecteur on peut voir que le navigateur envoie plusieurs requetes en parralèlle .
+
+![img_10.png](img_10.png)
+
+Il est aussi possible d'ouvrir plusieurs pages du site en même temps.
+
+## CONCLUSION
+
+Ce TP nous a permis de mieux comprendre le fonctionnement d'un serveur web et de manipuler en profondeur les sockets en Java.
+
+Certaine difficultés ont été rencontrées lors de la manipulation des fichiers et de l'envoi de contenu. Par exemple avec un espace en trop dans l'entête avant le content-type de la réponse, les navigateurs (sauf firefox sur lequel tout fonctionnait) reconnaissait tout les types MIME correctement exepté le type "image/svg + xml", le logo de polytech dijon ne s'affichait donc pas. Apres correction tout était rentré dans l'ordre.
+
+Les petites différences de fonctionnement entre le code fournis dans le CM et la réalité ont aussi pu ralentir la progression. Bien que cela est été formateur. ;)
+
+J'ai trouvé ce TP très intéressant et enrichissant. Il m'a permis de mieux comprendre le fonctionnement d'un serveur web et de manipuler les sockets en Java. J'ai aussi pu découvrir le multithreading en Java et son utilité dans le traitement de plusieurs requêtes en même temps.
