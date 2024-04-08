@@ -1,6 +1,6 @@
 ###### Nicolas METAIS
 
-Ce compte rendu est réalisé le ReadMe de mon <a href=https://github.com/nicopyright/JAVA-TD2> repository github </a>.
+Ce compte rendu est en réalité le ReadMe de mon <a href=https://github.com/nicopyright/JAVA-TD2> repository github </a>.
 
 # Compte Rendu de TP Java
 
